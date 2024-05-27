@@ -5,7 +5,6 @@
 #define CUTIL_NS json
 #include "util/error.hpp"
 #include "util/result.hpp"
-#include "util/string-map.hpp"
 #include "util/variant.hpp"
 #undef CUTIL_NS
 
@@ -39,7 +38,17 @@ struct Array {
 };
 
 struct Object {
-    StringMap<Value> children;
+    struct KeyValue;
+    std::vector<KeyValue> children;
+
+    auto find(std::string_view key) -> Value*;
+    auto find(std::string_view key) const -> const Value*;
+    auto operator[](std::string_view key) -> Value&;
+};
+
+struct Object::KeyValue {
+    std::string key;
+    Value       value;
 };
 
 // helper
@@ -64,8 +73,7 @@ auto make_array(Args&&... args) -> Array {
 
 template <class Arg>
 auto object_append(Object& object, const std::string_view key, Arg&& arg) -> void {
-    // FIXME: use key directly
-    object.children[std::string(key)] = Value(Tag<std::remove_cvref_t<Arg>>(), std::move(arg));
+    object[key] = Value(Tag<std::remove_cvref_t<Arg>>(), std::move(arg));
 }
 
 template <class Arg, class... Args>

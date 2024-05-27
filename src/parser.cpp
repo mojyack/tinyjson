@@ -70,7 +70,7 @@ class Parser {
 
     auto parse_object() -> std::optional<Value> {
         assert_o(read_type<token::LeftBrace>());
-        auto children = StringMap<Value>();
+        auto children = std::vector<Object::KeyValue>();
         if(peek_type<token::RightBrace>()) {
             read();
             return create_value<Object>(std::move(children));
@@ -79,7 +79,7 @@ class Parser {
         unwrap_po(key, read_type<token::String>());
         assert_o(read_type<token::Colon>());
         unwrap_oo_mut(value, parse_value());
-        children[key.value] = std::move(value);
+        children.emplace_back(key.value, std::move(value));
 
         unwrap_po(next, read());
         switch(next.get_index()) {

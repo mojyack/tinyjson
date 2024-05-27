@@ -37,10 +37,8 @@ auto deparse_value(std::string& str, const Value& value) -> void {
 
 auto deparse_object(std::string& str, const Object& object) -> void {
     str += "{";
-
-    const auto& c = object.children;
-    for(auto i = c.begin(); i != c.end(); i = std::next(i)) {
-        const auto& [key, value] = *i;
+    for(const auto& kv : object.children) {
+        const auto& [key, value] = kv;
         str += "\"";
         str += key;
         str += "\":";

@@ -1,4 +1,5 @@
 tinyjson_src = files(
+  'json.cpp',
   'lexer.cpp',
   'parser.cpp',
   'deparser.cpp',

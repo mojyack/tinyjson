@@ -125,12 +125,10 @@ auto operator==(const Object& a, const Object& b) -> bool {
     const auto& x = a.children;
     const auto& y = b.children;
     assert_b(x.size() == y.size());
-    for(auto i = x.begin(); i != x.end(); i = std::next(i)) {
-        const auto& [key, vx] = *i;
-        const auto iy         = y.find(key);
-        assert_b(iy != y.end());
-        const auto& [_, vy] = *iy;
-        assert_b(vx == vy);
+    for(auto i = 0u; i < x.size(); i += 1) {
+        const auto vy = b.find(x[i].key);
+        assert_b(vy);
+        assert_b(x[i].value == *vy);
     }
     return true;
 }
