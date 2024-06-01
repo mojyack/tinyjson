@@ -121,6 +121,7 @@ class Lexer {
         }
         reader.cursor -= len;
         unwrap_oo(buf, reader.read(len));
+        errno        = 0;
         const auto v = std::strtod(std::string(buf).data(), NULL);
         return errno == 0 ? std::optional(create_token<token::Number>(v)) : std::nullopt;
     }
