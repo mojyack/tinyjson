@@ -41,6 +41,20 @@ struct Object {
     struct KeyValue;
     std::vector<KeyValue> children;
 
+    template <class T>
+    auto find(std::string_view key) -> T* {
+        const auto p = find(key);
+        if(!p) {
+            return nullptr;
+        }
+        return p->get<T>();
+    }
+
+    template <class T>
+    auto find(std::string_view key) const -> const T* {
+        return const_cast<Object*>(this)->find<T>(key);
+    }
+
     auto find(std::string_view key) -> Value*;
     auto find(std::string_view key) const -> const Value*;
     auto operator[](std::string_view key) -> Value&;
