@@ -31,8 +31,13 @@ auto deparse_value(std::string& str, const Value& value) -> void {
             deparse_value(str, e);
             str += ",";
         }
-        str.pop_back(); // remove trailing comma
-        str += "]";
+        // remove trailing comma
+        if(str.back() == ',') {
+            str.back() = ']';
+        } else {
+            // empty array
+            str += ']';
+        }
         break;
     case Value::index_of<Object>:
         deparse_object(str, value.as<Object>());
