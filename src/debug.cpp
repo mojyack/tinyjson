@@ -204,11 +204,24 @@ const auto nest_test = TestCase{
     })",
 };
 
+// string test
+const auto string_test = TestCase{
+    .object = make_object(
+        "str1", String("string"),
+        "str2", String("\"string\"")),
+    .string = R"(
+    {
+        "str1": "string",
+        "str2": "\"string\""
+    })",
+};
+
 auto test() -> Result<bool, StringError> {
     const auto tests = std::array{
         &basic_test,
         &array_test,
         &nest_test,
+        &string_test,
     };
 
     for(const auto test : tests) {

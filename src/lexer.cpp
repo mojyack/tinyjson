@@ -72,9 +72,20 @@ class Lexer {
 
     auto parse_string_token() -> std::optional<Token> {
         assert_o(reader.read()); // skip '"'
-        unwrap_oo(str, reader.read_until('"'));
-        assert_o(reader.read()); // skip '"'
-        return Token(Tag<token::String>(), std::string(str));
+        auto str = std::string();
+        while(true) {
+            unwrap_oo(c, reader.read());
+            if(c == '\\') {
+                unwrap_oo(d, reader.read());
+                str.push_back(d);
+                continue;
+            }
+            if(c == '"') {
+                break;
+            }
+            str.push_back(c);
+        }
+        return Token(Tag<token::String>(), std::move(str));
     }
 
     auto expect_string(const std::string_view expect) -> bool {
