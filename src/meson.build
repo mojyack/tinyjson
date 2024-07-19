@@ -1,10 +1,10 @@
-tinyjson_src = files(
+tinyjson_files = files(
   'json.cpp',
   'lexer.cpp',
   'parser.cpp',
   'deparser.cpp',
 )
 
-tinyjson_debug_src = files(
+tinyjson_debug_files = files(
   'debug.cpp',
 )

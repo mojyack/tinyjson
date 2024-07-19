@@ -3,4 +3,4 @@ add_project_arguments('-Wfatal-errors', language: 'cpp')
 
 subdir('src')
 
-executable('example', tinyjson_src + tinyjson_debug_src) 
+executable('example', tinyjson_files + tinyjson_debug_files)
