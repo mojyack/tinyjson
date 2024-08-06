@@ -2,8 +2,6 @@
 
 #include "json.hpp"
 #include "lexer.hpp"
-
-#define CUTIL_NS json
 #include "macros/unwrap.hpp"
 
 namespace json {
