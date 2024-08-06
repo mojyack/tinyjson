@@ -2,8 +2,9 @@
 #include <vector>
 
 #include "lexer.hpp"
+
+#define CUTIL_NS json
 #include "macros/unwrap.hpp"
-#include "util/assert.hpp"
 
 namespace json {
 namespace {
@@ -62,12 +63,12 @@ class Lexer {
 
     template <class T>
     auto create_token() -> Token {
-        return Token(Tag<T>(), T{});
+        return Token::create<T>();
     }
 
     template <class T, class... Args>
     auto create_token(Args... args) -> Token {
-        return Token(Tag<T>(), T{std::forward<Args...>(args...)});
+        return Token::create<T>(std::forward<Args...>(args...));
     }
 
     auto parse_string_token() -> std::optional<Token> {
@@ -85,7 +86,7 @@ class Lexer {
             }
             str.push_back(c);
         }
-        return Token(Tag<token::String>(), std::move(str));
+        return Token::create<token::String>(std::move(str));
     }
 
     auto expect_string(const std::string_view expect) -> bool {

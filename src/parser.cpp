@@ -2,10 +2,12 @@
 
 #include "json.hpp"
 #include "lexer.hpp"
+
+#define CUTIL_NS json
 #include "macros/unwrap.hpp"
-#include "util/assert.hpp"
 
 namespace json {
+namespace {
 class Parser {
   private:
     size_t             cursor;
@@ -13,12 +15,12 @@ class Parser {
 
     template <class T>
     auto create_value() -> Value {
-        return Value(Tag<T>(), T{});
+        return Value::create<T>();
     }
 
     template <class T, class... Args>
     auto create_value(Args... args) -> Value {
-        return Value(Tag<T>(), T{std::forward<Args...>(args...)});
+        return Value::create<T>(std::forward<Args...>(args...));
     }
 
     auto peek() -> const Token* {
@@ -126,6 +128,7 @@ class Parser {
 
     Parser(std::vector<Token> tokens) : cursor(0), tokens(std::move(tokens)) {}
 };
+} // namespace
 
 auto parse(std::vector<Token> tokens) -> Result<Object, StringError> {
     auto parser = Parser(std::move(tokens));

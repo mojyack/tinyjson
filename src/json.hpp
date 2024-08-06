@@ -68,12 +68,12 @@ struct Object::KeyValue {
 // helper
 template <class Arg>
 auto array_append(Array& array, Arg&& arg) -> void {
-    array.value.push_back(Value(Tag<std::remove_cvref_t<Arg>>(), std::move(arg)));
+    array.value.push_back(Value::create<std::remove_cvref_t<Arg>>(std::move(arg)));
 }
 
 template <class Arg, class... Args>
 auto array_append(Array& array, Arg&& arg, Args&&... args) -> void {
-    array.value.push_back(Value(Tag<std::remove_cvref_t<Arg>>(), std::move(arg)));
+    array.value.push_back(Value::create<std::remove_cvref_t<Arg>>(std::move(arg)));
     array_append(array, std::forward<Args>(args)...);
 }
 
@@ -87,7 +87,7 @@ auto make_array(Args&&... args) -> Array {
 
 template <class Arg>
 auto object_append(Object& object, const std::string_view key, Arg&& arg) -> void {
-    object[key] = Value(Tag<std::remove_cvref_t<Arg>>(), std::move(arg));
+    object[key] = Value::create<std::remove_cvref_t<Arg>>(std::move(arg));
 }
 
 template <class Arg, class... Args>
