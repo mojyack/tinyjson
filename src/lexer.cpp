@@ -143,6 +143,14 @@ class Lexer {
         case '\n':
             reader.read();
             return create_token<token::WhiteSpace>();
+        case '\r': {
+            reader.read();
+            unwrap_oo(next, reader.peek());
+            if(next == '\n') {
+                reader.read();
+                return create_token<token::WhiteSpace>();
+            }
+        } break;
         case '{':
             reader.read();
             return create_token<token::LeftBrace>();
@@ -175,15 +183,6 @@ class Lexer {
         }
         if(next >= '0' && next <= '9') {
             return parse_number_token();
-        }
-        // handle crlf
-        if(next == '\r') {
-            reader.read();
-            unwrap_oo(next, reader.peek());
-            if(next == '\n') {
-                reader.read();
-                return create_token<token::WhiteSpace>();
-            }
         }
         WARN("unexpected character: '", next, "'");
         return std::nullopt;
