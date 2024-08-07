@@ -176,6 +176,7 @@ class Lexer {
         if(next >= '0' && next <= '9') {
             return parse_number_token();
         }
+        WARN("unexpected character: '", next, "'");
         return std::nullopt;
     }
 
