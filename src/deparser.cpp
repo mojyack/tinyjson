@@ -55,7 +55,9 @@ auto deparse_object(std::string& str, const Object& object) -> void {
         deparse_value(str, value);
         str += ",";
     }
-    str.pop_back(); // remove trailing comma
+    if(str.back() == ',') {
+        str.pop_back(); // remove trailing comma
+    }
 
     str += "}";
 }
