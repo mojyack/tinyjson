@@ -1,3 +1,5 @@
+#include <array>
+
 #include "json.hpp"
 #include "lexer.hpp"
 #include "macros/assert.hpp"
