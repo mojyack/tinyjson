@@ -12,10 +12,17 @@ auto deparse_value(std::string& str, const Value& value) -> void {
     case Value::index_of<String>:
         str += "\"";
         for(const auto c : value.as<String>().value) {
-            if(c == '"') {
-                str += '\\';
+            switch(c) {
+            case '"':
+                str += "\\\"";
+                break;
+            case '\\':
+                str += "\\\\";
+                break;
+            default:
+                str += c;
+                break;
             }
-            str += c;
         }
         str += "\"";
         break;
