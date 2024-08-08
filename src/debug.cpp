@@ -227,10 +227,18 @@ auto test() -> Result<bool, StringError> {
     };
 
     for(const auto test : tests) {
-        unwrap_re(parsed, parse(test->string));
-        if(parsed != test->object) {
-            return StringError("result mismatched");
+        unwrap_re(parsed1, parse(test->string));
+        if(parsed1 != test->object) {
+            return StringError("stage1 failed");
         }
+        print("stage1 ok");
+        const auto str = deparse(parsed1);
+        print(str);
+        unwrap_re(parsed2, parse(str));
+        if(parsed2 != test->object) {
+            return StringError("stage2 failed");
+        }
+        print("stage2 ok");
     }
     return true;
 }
