@@ -210,11 +210,13 @@ const auto nest_test = TestCase{
 const auto string_test = TestCase{
     .object = make_object(
         "str1", String("string"),
-        "str2", String("\"string\"")),
+        "str2", String(R"("string")"),
+        "str3", String(R"(\string\)")),
     .string = R"(
     {
         "str1": "string",
-        "str2": "\"string\""
+        "str2": "\"string\"",
+        "str3": "\\string\\"
     })",
 };
 
@@ -249,7 +251,7 @@ auto main() -> bool {
         PRINT(result.as_error().cstr());
         return false;
     } else {
-        PRINT("pass");
+        print("all pass");
         return true;
     }
 }
