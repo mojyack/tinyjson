@@ -94,7 +94,7 @@ auto operator==(const Array& a, const Array& b) -> bool;
 auto operator==(const Object& a, const Object& b) -> bool;
 
 auto operator==(const Value& a, const Value& b) -> bool {
-    assert_b(a.get_index() == b.get_index());
+    ensure(a.get_index() == b.get_index());
 
     switch(a.get_index()) {
     case Value::index_of<Number>:
@@ -116,9 +116,9 @@ auto operator==(const Value& a, const Value& b) -> bool {
 auto operator==(const Array& a, const Array& b) -> bool {
     const auto& v1 = a.value;
     const auto& v2 = b.value;
-    assert_b(v1.size() == v2.size());
+    ensure(v1.size() == v2.size());
     for(auto i = 0u; i < v1.size(); i += 1) {
-        assert_b(v1[i] == v2[i]);
+        ensure(v1[i] == v2[i]);
     }
     return true;
 }
@@ -126,11 +126,11 @@ auto operator==(const Array& a, const Array& b) -> bool {
 auto operator==(const Object& a, const Object& b) -> bool {
     const auto& x = a.children;
     const auto& y = b.children;
-    assert_b(x.size() == y.size());
+    ensure(x.size() == y.size());
     for(auto i = 0u; i < x.size(); i += 1) {
         const auto vy = b.find(x[i].key);
-        assert_b(vy);
-        assert_b(x[i].value == *vy);
+        ensure(vy);
+        ensure(x[i].value == *vy);
     }
     return true;
 }
@@ -220,7 +220,7 @@ const auto string_test = TestCase{
     })",
 };
 
-auto test() -> Result<bool, StringError> {
+auto test() -> bool {
     const auto tests = std::array{
         &basic_test,
         &array_test,
@@ -229,35 +229,25 @@ auto test() -> Result<bool, StringError> {
     };
 
     for(const auto test : tests) {
-        unwrap_re(parsed1, parse(test->string));
-        if(parsed1 != test->object) {
-            return StringError("stage1 failed");
-        }
+        unwrap(parsed1, parse(test->string));
+        ensure(parsed1 == test->object);
         print("stage1 ok");
         const auto str = deparse(parsed1);
         print(str);
-        unwrap_re(parsed2, parse(str));
-        if(parsed2 != test->object) {
-            return StringError("stage2 failed");
-        }
+        unwrap(parsed2, parse(str));
+        ensure(parsed2 == test->object);
         print("stage2 ok");
     }
     return true;
-}
-
-auto main() -> bool {
-    const auto result = test();
-    if(!result) {
-        PRINT(result.as_error().cstr());
-        return false;
-    } else {
-        print("all pass");
-        return true;
-    }
 }
 } // namespace
 } // namespace json
 
 auto main() -> int {
-    return json::main() ? 0 : 1;
+    if(json::test()) {
+        print("all pass");
+        return 0;
+    } else {
+        return 1;
+    }
 }

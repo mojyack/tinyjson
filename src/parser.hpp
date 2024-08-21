@@ -3,5 +3,5 @@
 #include "lexer.hpp"
 
 namespace json {
-auto parse(std::vector<Token> tokens) -> Result<Object, StringError>;
+auto parse(std::vector<Token> tokens) -> std::optional<Object>;
 }

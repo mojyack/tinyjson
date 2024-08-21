@@ -22,18 +22,18 @@ struct StringReader {
     std::string_view str;
 
     auto peek() const -> std::optional<char> {
-        assert_o(cursor < str.size());
+        ensure(cursor < str.size());
         return str[cursor];
     }
 
     auto read() -> std::optional<char> {
-        unwrap_oo(c, peek());
+        unwrap(c, peek());
         cursor += 1;
         return c;
     }
 
     auto read(const int len) -> std::optional<std::string_view> {
-        assert_o(cursor + len < str.size());
+        ensure(cursor + len < str.size());
         const auto r = str.substr(cursor, len);
         cursor += len;
         return r;
@@ -47,7 +47,7 @@ struct StringReader {
     auto read_until(const Args... args) -> std::optional<std::string_view> {
         auto begin = cursor;
     loop:
-        unwrap_oo(c, read());
+        unwrap(c, read());
         if(contains(c, args...)) {
             cursor -= 1;
             return str.substr(begin, cursor - begin);
@@ -70,12 +70,12 @@ class Lexer {
     }
 
     auto parse_string_token() -> std::optional<Token> {
-        assert_o(reader.read()); // skip '"'
+        ensure(reader.read()); // skip '"'
         auto str = std::string();
         while(true) {
-            unwrap_oo(c, reader.read());
+            unwrap(c, reader.read());
             if(c == '\\') {
-                unwrap_oo(d, reader.read());
+                unwrap(d, reader.read());
                 str.push_back(d);
                 continue;
             }
@@ -88,12 +88,12 @@ class Lexer {
     }
 
     auto expect_string(const std::string_view expect) -> bool {
-        unwrap_ob(str, reader.read(expect.size()));
+        unwrap(str, reader.read(expect.size()));
         return str == expect;
     }
 
     auto parse_boolean_token() -> std::optional<Token> {
-        unwrap_oo(next, reader.peek());
+        unwrap(next, reader.peek());
         if(next == 't') {
             return expect_string("true") ? std::optional(create_token<token::Boolean>(true)) : std::nullopt;
         } else if(next == 'f') {
@@ -110,7 +110,7 @@ class Lexer {
     auto parse_number_token() -> std::optional<Token> {
         auto len = 0;
         while(true) {
-            unwrap_oo(next, reader.peek());
+            unwrap(next, reader.peek());
             switch(next) {
             case '+':
             case '-':
@@ -130,14 +130,14 @@ class Lexer {
             continue;
         }
         reader.cursor -= len;
-        unwrap_oo(buf, reader.read(len));
+        unwrap(buf, reader.read(len));
         errno        = 0;
         const auto v = std::strtod(std::string(buf).data(), NULL);
         return errno == 0 ? std::optional(create_token<token::Number>(v)) : std::nullopt;
     }
 
     auto parse_next_token() -> std::optional<Token> {
-        unwrap_oo(next, reader.peek());
+        unwrap(next, reader.peek());
         switch(next) {
         case ' ':
         case '\n':
@@ -145,7 +145,7 @@ class Lexer {
             return create_token<token::WhiteSpace>();
         case '\r': {
             reader.read();
-            unwrap_oo(next, reader.peek());
+            unwrap(next, reader.peek());
             if(next == '\n') {
                 reader.read();
                 return create_token<token::WhiteSpace>();
@@ -184,15 +184,14 @@ class Lexer {
         if(next >= '0' && next <= '9') {
             return parse_number_token();
         }
-        WARN("unexpected character: '", next, "'");
-        return std::nullopt;
+        bail("unexpected character: '", next, "'");
     }
 
   public:
     auto tokenize() -> std::optional<std::vector<Token>> {
         auto tokens = std::vector<Token>();
         while(!reader.is_eof()) {
-            unwrap_oo_mut(token, parse_next_token());
+            unwrap_mut(token, parse_next_token());
             // ignore white space
             if(token.get<token::WhiteSpace>()) {
                 continue;
@@ -222,12 +221,12 @@ class Lexer {
 };
 } // namespace
 
-auto tokenize(const std::string_view str) -> Result<std::vector<Token>, StringError> {
+auto tokenize(const std::string_view str) -> std::optional<std::vector<Token>> {
     auto lexer = Lexer(str);
     auto ret_o = lexer.tokenize();
     if(!ret_o) {
         const auto [line, chara] = lexer.get_current_pos();
-        return StringError(build_string("lexer error at line ", line, ", character ", chara));
+        bail("lexer error at line ", line, ", character ", chara);
     } else {
         return std::move(ret_o.value());
     }

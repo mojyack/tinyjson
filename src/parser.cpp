@@ -22,30 +22,30 @@ class Parser {
     }
 
     auto peek() -> const Token* {
-        assert_p(cursor < tokens.size());
+        ensure(cursor < tokens.size());
         return &tokens[cursor];
     }
 
     template <class T>
     auto peek_type() -> const T* {
-        unwrap_pp(next, peek());
+        unwrap(next, peek());
         return next.get<T>();
     }
 
     auto read() -> const Token* {
-        unwrap_pp(next, peek());
+        unwrap(next, peek());
         cursor += 1;
         return &next;
     }
 
     template <class T>
     auto read_type() -> const T* {
-        unwrap_pp(next, read());
+        unwrap(next, read());
         return next.get<T>();
     }
 
     auto parse_value() -> std::optional<Value> {
-        unwrap_po(token, peek());
+        unwrap(token, peek());
         switch(token.get_index()) {
         case Token::index_of<token::LeftBrace>:
             return parse_object();
@@ -69,19 +69,19 @@ class Parser {
     }
 
     auto parse_object() -> std::optional<Value> {
-        assert_o(read_type<token::LeftBrace>());
+        ensure(read_type<token::LeftBrace>());
         auto children = std::vector<Object::KeyValue>();
         if(peek_type<token::RightBrace>()) {
             read();
             return create_value<Object>(std::move(children));
         }
     loop:
-        unwrap_po(key, read_type<token::String>());
-        assert_o(read_type<token::Colon>());
-        unwrap_oo_mut(value, parse_value());
+        unwrap(key, read_type<token::String>());
+        ensure(read_type<token::Colon>());
+        unwrap_mut(value, parse_value());
         children.emplace_back(key.value, std::move(value));
 
-        unwrap_po(next, read());
+        unwrap(next, read());
         switch(next.get_index()) {
         case Token::index_of<token::RightBrace>:
             return create_value<Object>(std::move(children));
@@ -93,17 +93,17 @@ class Parser {
     }
 
     auto parse_array() -> std::optional<Value> {
-        assert_o(read_type<token::LeftBracket>());
+        ensure(read_type<token::LeftBracket>());
         auto array = Array();
         if(peek_type<token::RightBracket>()) {
             read();
             return create_value<Array>(std::move(array));
         }
     loop:
-        unwrap_oo_mut(value, parse_value());
+        unwrap_mut(value, parse_value());
         array.value.push_back(std::move(value));
 
-        unwrap_po(next, read());
+        unwrap(next, read());
         switch(next.get_index()) {
         case Token::index_of<token::RightBracket>:
             return create_value<Array>(std::move(array));
@@ -116,31 +116,31 @@ class Parser {
 
   public:
     auto parse() -> std::optional<Object> {
-        unwrap_oo_mut(value, parse_object());
+        unwrap_mut(value, parse_object());
         return std::move(value.as<Object>());
     }
 
-    auto get_error() -> StringError {
-        return StringError(build_string("parser error at token ", cursor, " of ", tokens.size()));
+    auto get_error() -> std::string {
+        return build_string("parser error at token ", cursor, " of ", tokens.size());
     }
 
     Parser(std::vector<Token> tokens) : cursor(0), tokens(std::move(tokens)) {}
 };
 } // namespace
 
-auto parse(std::vector<Token> tokens) -> Result<Object, StringError> {
+auto parse(std::vector<Token> tokens) -> std::optional<Object> {
     auto parser = Parser(std::move(tokens));
     auto ret_o  = parser.parse();
     if(!ret_o) {
-        return parser.get_error();
+        bail(parser.get_error());
     } else {
         return std::move(ret_o.value());
     }
 }
 
-auto parse(const std::string_view str) -> Result<Object, StringError> {
-    unwrap_re_mut(tokens, tokenize(str));
-    unwrap_re_mut(object, parse(std::move(tokens)));
+auto parse(const std::string_view str) -> std::optional<Object> {
+    unwrap_mut(token, tokenize(str));
+    unwrap_mut(object, parse(std::move(token)));
     return std::move(object);
 }
 } // namespace json

@@ -3,8 +3,6 @@
 #include <vector>
 
 #define CUTIL_NS json
-#include "util/error.hpp"
-#include "util/result.hpp"
 #include "util/variant.hpp"
 #undef CUTIL_NS
 
@@ -104,7 +102,7 @@ auto make_object(const std::string_view key, Arg&& arg, Args&&... args) -> Objec
 }
 
 // parser.cpp
-auto parse(const std::string_view str) -> Result<Object, StringError>;
+auto parse(const std::string_view str) -> std::optional<Object>;
 
 // deparser.cpp
 auto deparse(const Object& object) -> std::string;

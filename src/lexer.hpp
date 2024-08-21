@@ -2,8 +2,6 @@
 #include <string>
 
 #define CUTIL_NS json
-#include "util/error.hpp"
-#include "util/result.hpp"
 #include "util/variant.hpp"
 #undef CUTIL_NS
 
@@ -42,5 +40,5 @@ using Token = Variant<String, Number, Boolean, Null, WhiteSpace, LeftBrace, Righ
 
 using Token = token::Token;
 
-auto tokenize(std::string_view str) -> Result<std::vector<Token>, StringError>;
+auto tokenize(std::string_view str) -> std::optional<std::vector<Token>>;
 } // namespace json
