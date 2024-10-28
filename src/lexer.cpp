@@ -141,6 +141,7 @@ class Lexer {
         switch(next) {
         case ' ':
         case '\n':
+        case '\t':
             reader.read();
             return create_token<token::WhiteSpace>();
         case '\r': {

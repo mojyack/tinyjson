@@ -140,6 +140,12 @@ struct TestCase {
     std::string string;
 };
 
+// lexer test
+const auto lexer_test = TestCase{
+    .object = json::Object(),
+    .string = "{ \n \r\n \t }",
+};
+
 // basic type test
 const auto basic_test = TestCase{
     .object = make_object(
@@ -222,6 +228,7 @@ const auto string_test = TestCase{
 
 auto test() -> bool {
     const auto tests = std::array{
+        &lexer_test,
         &basic_test,
         &array_test,
         &nest_test,
