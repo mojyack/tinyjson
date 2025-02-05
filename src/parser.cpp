@@ -121,7 +121,7 @@ class Parser {
     }
 
     auto get_error() -> std::string {
-        return build_string("parser error at token ", cursor, " of ", tokens.size());
+        return std::format("parser error at token {} of ", cursor, tokens.size());
     }
 
     Parser(std::vector<Token> tokens) : cursor(0), tokens(std::move(tokens)) {}
@@ -132,7 +132,7 @@ auto parse(std::vector<Token> tokens) -> std::optional<Object> {
     auto parser = Parser(std::move(tokens));
     auto ret_o  = parser.parse();
     if(!ret_o) {
-        bail(parser.get_error());
+        bail("{}", parser.get_error());
     } else {
         return std::move(ret_o.value());
     }

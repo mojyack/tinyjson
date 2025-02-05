@@ -185,7 +185,7 @@ class Lexer {
         if(next >= '0' && next <= '9') {
             return parse_number_token();
         }
-        bail("unexpected character: '", next, "'");
+        bail("unexpected character: '{}'", next);
     }
 
   public:
@@ -227,7 +227,7 @@ auto tokenize(const std::string_view str) -> std::optional<std::vector<Token>> {
     auto ret_o = lexer.tokenize();
     if(!ret_o) {
         const auto [line, chara] = lexer.get_current_pos();
-        bail("lexer error at line ", line, ", character ", chara);
+        bail("lexer error at line {}, character {}", line, chara);
     } else {
         return std::move(ret_o.value());
     }

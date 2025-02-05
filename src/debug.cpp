@@ -10,37 +10,37 @@ namespace {
 [[maybe_unused]] auto print_token(const Token& token) -> void {
     switch(token.get_index()) {
     case Token::index_of<token::WhiteSpace>:
-        print("(white space)");
+        std::println("(white space)");
         break;
     case Token::index_of<token::LeftBrace>:
-        print("{");
+        std::println("{{");
         break;
     case Token::index_of<token::RightBrace>:
-        print("}");
+        std::println("}}");
         break;
     case Token::index_of<token::LeftBracket>:
-        print("[");
+        std::println("[");
         break;
     case Token::index_of<token::RightBracket>:
-        print("]");
+        std::println("]");
         break;
     case Token::index_of<token::Comma>:
-        print(",");
+        std::println(",");
         break;
     case Token::index_of<token::Colon>:
-        print(":");
+        std::println(":");
         break;
     case Token::index_of<token::String>:
-        print("STR(", token.as<token::String>().value, ")");
+        std::println("STR(", token.as<token::String>().value, ")");
         break;
     case Token::index_of<token::Boolean>:
-        print("BOOL(", token.as<token::Boolean>().value ? "true" : "false", ")");
+        std::println("BOOL(", token.as<token::Boolean>().value ? "true" : "false", ")");
         break;
     case Token::index_of<token::Null>:
-        print("NULL");
+        std::println("NULL");
         break;
     case Token::index_of<token::Number>:
-        print("NUM(", token.as<token::Number>().value, ")");
+        std::println("NUM(", token.as<token::Number>().value, ")");
         break;
     }
 }
@@ -51,24 +51,24 @@ auto print_value(const Value& value, int indent) -> void {
     const auto prefix = std::string(indent, ' ');
     switch(value.get_index()) {
     case Value::index_of<Number>:
-        std::cout << value.as<Number>().value;
+        std::print("{}", value.as<Number>().value);
         break;
     case Value::index_of<String>:
-        std::cout << '"' << value.as<String>().value << '"';
+        std::print(R"("{}")", value.as<String>().value);
         break;
     case Value::index_of<Boolean>:
-        std::cout << (value.as<Boolean>().value ? "true" : "false");
+        std::print("{}", value.as<Boolean>().value ? "true" : "false");
         break;
     case Value::index_of<Null>:
-        std::cout << "null";
+        std::print("null");
         break;
     case Value::index_of<Array>:
-        std::cout << "[";
+        std::print("[");
         for(const auto& e : value.as<Array>().value) {
             print_value(e, indent);
-            std::cout << ",";
+            std::print(",");
         }
-        std::cout << "]";
+        std::print("]");
         break;
     case Value::index_of<Object>:
         print_object(value.as<Object>(), indent);
@@ -79,15 +79,15 @@ auto print_value(const Value& value, int indent) -> void {
 auto print_object(const Object& o, const int indent) -> void {
     const auto prefix1 = std::string(indent, ' ');
     const auto prefix2 = std::string(indent + 4, ' ');
-    print("{");
+    std::println("{{");
     const auto& c = o.children;
     for(auto i = c.begin(); i != c.end(); i = std::next(i)) {
         const auto& [key, value] = *i;
-        std::cout << build_string(prefix2, "\"", key, "\": ");
+        std::print(R"({}"{}": )", prefix2, key);
         print_value(value, indent + 4);
-        std::cout << "," << std::endl;
+        std::println(",");
     }
-    std::cout << prefix1 << "}";
+    std::print("{}}}", prefix1);
 }
 
 auto operator==(const Array& a, const Array& b) -> bool;
@@ -238,12 +238,12 @@ auto test() -> bool {
     for(const auto test : tests) {
         unwrap(parsed1, parse(test->string));
         ensure(parsed1 == test->object);
-        print("stage1 ok");
+        std::println("stage1 ok");
         const auto str = deparse(parsed1);
-        print(str);
+        std::println("{}", str);
         unwrap(parsed2, parse(str));
         ensure(parsed2 == test->object);
-        print("stage2 ok");
+        std::println("stage2 ok");
     }
     return true;
 }
@@ -252,7 +252,7 @@ auto test() -> bool {
 
 auto main() -> int {
     if(json::test()) {
-        print("all pass");
+        std::println("all pass");
         return 0;
     } else {
         return 1;
