@@ -3,6 +3,7 @@
 
 #include "lexer.hpp"
 #include "macros/unwrap.hpp"
+#include "util/charconv.hpp"
 
 namespace json {
 namespace {
@@ -131,9 +132,8 @@ class Lexer {
         }
         reader.cursor -= len;
         unwrap(buf, reader.read(len));
-        errno        = 0;
-        const auto v = std::strtod(std::string(buf).data(), NULL);
-        return errno == 0 ? std::optional(create_token<token::Number>(v)) : std::nullopt;
+        unwrap(num, from_chars<double>(buf));
+        return create_token<token::Number>(num);
     }
 
     auto parse_next_token() -> std::optional<Token> {
