@@ -121,7 +121,7 @@ class Parser {
     }
 
     auto get_error() -> std::string {
-        return std::format("parser error at token {} of ", cursor, tokens.size());
+        return std::format("parser error at token {} of {}", cursor, tokens.size());
     }
 
     Parser(std::vector<Token> tokens) : cursor(0), tokens(std::move(tokens)) {}
