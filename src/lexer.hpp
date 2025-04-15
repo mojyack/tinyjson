@@ -1,9 +1,7 @@
 #pragma once
 #include <string>
 
-#define CUTIL_NS json
 #include "util/variant.hpp"
-#undef CUTIL_NS
 
 namespace json {
 namespace token {
