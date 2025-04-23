@@ -1,3 +1,5 @@
+#include <format>
+
 #include "json.hpp"
 
 namespace json {
@@ -7,7 +9,7 @@ auto deparse_object(std::string& str, const Object& object) -> void;
 auto deparse_value(std::string& str, const Value& value) -> void {
     switch(value.get_index()) {
     case Value::index_of<Number>:
-        str += std::to_string(value.as<Number>().value);
+        str += std::format("{}", value.as<Number>().value);
         break;
     case Value::index_of<String>:
         str += "\"";
