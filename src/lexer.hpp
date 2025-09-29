@@ -39,5 +39,5 @@ using Token = Variant<String, Number, Boolean, Null, WhiteSpace, LeftBrace, Righ
 
 using Token = token::Token;
 
-auto tokenize(std::string_view str) -> std::optional<std::vector<Token>>;
+auto tokenize(std::string_view str, bool allow_comments) -> std::optional<std::vector<Token>>;
 } // namespace json

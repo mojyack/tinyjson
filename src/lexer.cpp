@@ -12,6 +12,20 @@ struct Lexer {
     StringReader reader;
     bool         allow_comments = false;
 
+    auto skip_comment() -> bool {
+        ensure(reader.read()); // skip '/'
+        unwrap(c, reader.read());
+        if(c == '/') { // line comment
+            ensure(reader.read_until('\n', '\r'));
+        } else if(c == '*') { // block comment
+            ensure(reader.read_until("*/"));
+            ensure(reader.read(2)); // skip "*/"
+        } else {
+            bail("unknown comment type {}", c);
+        }
+        return true;
+    }
+
     auto parse_string_token() -> std::optional<Token> {
         ensure(reader.read()); // skip '"'
         auto str = std::string();
@@ -133,6 +147,10 @@ struct Lexer {
     auto tokenize() -> std::optional<std::vector<Token>> {
         auto tokens = std::vector<Token>();
         while(!reader.is_eof()) {
+            if(allow_comments && reader.peek() == '/') {
+                ensure(skip_comment());
+                continue;
+            }
             unwrap_mut(token, parse_next_token());
             // ignore white space
             if(token.get<token::WhiteSpace>()) {
@@ -158,13 +176,14 @@ struct Lexer {
         }
         return {line, chara};
     }
-
-    Lexer(const std::string_view str) : reader({0, str}) {}
 };
 } // namespace
 
-auto tokenize(const std::string_view str) -> std::optional<std::vector<Token>> {
-    auto lexer = Lexer(str);
+auto tokenize(const std::string_view str, const bool allow_comments) -> std::optional<std::vector<Token>> {
+    auto lexer = Lexer{
+        .reader         = StringReader{str},
+        .allow_comments = allow_comments,
+    };
     auto ret_o = lexer.tokenize();
     if(!ret_o) {
         const auto [l, c] = lexer.get_current_pos();

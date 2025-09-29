@@ -100,7 +100,10 @@ auto make_object(const std::string_view key, Arg&& arg, Args&&... args) -> Objec
 }
 
 // parser.cpp
-auto parse(const std::string_view str) -> std::optional<Object>;
+struct ParseOpts {
+    bool allow_comments = true;
+};
+auto parse(std::string_view str, ParseOpts opts = {}) -> std::optional<Object>;
 
 // deparser.cpp
 auto deparse(const Object& object) -> std::string;

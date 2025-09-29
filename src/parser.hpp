@@ -4,4 +4,4 @@
 
 namespace json {
 auto parse(std::vector<Token> tokens) -> std::optional<Object>;
-}
+} // namespace json

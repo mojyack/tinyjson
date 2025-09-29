@@ -226,6 +226,28 @@ const auto string_test = TestCase{
     })",
 };
 
+// comment test
+const auto comment_test = TestCase{
+    .object = make_object(
+        "a", Number(1),
+        "b", Number(2),
+        "c", Number(3),
+        "d", Number(4)),
+    .string = R"(
+    {   // line comment
+        "a": 1,
+        // line 1
+        // line 2
+        // line 3
+        "b": 2,
+        /*
+         * block comment
+         */
+        "c": 3,
+        "d": /*inline*/ 4
+    })",
+};
+
 auto test() -> bool {
     const auto tests = std::array{
         &lexer_test,
@@ -233,6 +255,7 @@ auto test() -> bool {
         &array_test,
         &nest_test,
         &string_test,
+        &comment_test,
     };
 
     for(const auto test : tests) {

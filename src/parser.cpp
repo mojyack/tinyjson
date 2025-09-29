@@ -138,8 +138,8 @@ auto parse(std::vector<Token> tokens) -> std::optional<Object> {
     }
 }
 
-auto parse(const std::string_view str) -> std::optional<Object> {
-    unwrap_mut(token, tokenize(str));
+auto parse(const std::string_view str, ParseOpts opts) -> std::optional<Object> {
+    unwrap_mut(token, tokenize(str, opts.allow_comments));
     unwrap_mut(object, parse(std::move(token)));
     return std::move(object);
 }
