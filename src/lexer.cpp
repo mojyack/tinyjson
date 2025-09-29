@@ -60,16 +60,6 @@ struct StringReader {
 class Lexer {
     StringReader reader;
 
-    template <class T>
-    auto create_token() -> Token {
-        return Token::create<T>();
-    }
-
-    template <class T, class... Args>
-    auto create_token(Args... args) -> Token {
-        return Token::create<T>(std::forward<Args...>(args...));
-    }
-
     auto parse_string_token() -> std::optional<Token> {
         ensure(reader.read()); // skip '"'
         auto str = std::string();
@@ -96,16 +86,16 @@ class Lexer {
     auto parse_boolean_token() -> std::optional<Token> {
         unwrap(next, reader.peek());
         if(next == 't') {
-            return expect_string("true") ? std::optional(create_token<token::Boolean>(true)) : std::nullopt;
+            return expect_string("true") ? std::optional(Token::create<token::Boolean>(true)) : std::nullopt;
         } else if(next == 'f') {
-            return expect_string("false") ? std::optional(create_token<token::Boolean>(false)) : std::nullopt;
+            return expect_string("false") ? std::optional(Token::create<token::Boolean>(false)) : std::nullopt;
         } else {
             return std::nullopt;
         }
     }
 
     auto parse_null_token() -> std::optional<Token> {
-        return expect_string("null") ? std::optional(create_token<token::Null>()) : std::nullopt;
+        return expect_string("null") ? std::optional(Token::create<token::Null>()) : std::nullopt;
     }
 
     auto parse_number_token() -> std::optional<Token> {
@@ -133,7 +123,7 @@ class Lexer {
         reader.cursor -= len;
         unwrap(buf, reader.read(len));
         unwrap(num, from_chars<double>(buf));
-        return create_token<token::Number>(num);
+        return Token::create<token::Number>(num);
     }
 
     auto parse_next_token() -> std::optional<Token> {
@@ -143,33 +133,33 @@ class Lexer {
         case '\n':
         case '\t':
             reader.read();
-            return create_token<token::WhiteSpace>();
+            return Token::create<token::WhiteSpace>();
         case '\r': {
             reader.read();
             unwrap(next, reader.peek());
             if(next == '\n') {
                 reader.read();
-                return create_token<token::WhiteSpace>();
+                return Token::create<token::WhiteSpace>();
             }
         } break;
         case '{':
             reader.read();
-            return create_token<token::LeftBrace>();
+            return Token::create<token::LeftBrace>();
         case '}':
             reader.read();
-            return create_token<token::RightBrace>();
+            return Token::create<token::RightBrace>();
         case '[':
             reader.read();
-            return create_token<token::LeftBracket>();
+            return Token::create<token::LeftBracket>();
         case ']':
             reader.read();
-            return create_token<token::RightBracket>();
+            return Token::create<token::RightBracket>();
         case ',':
             reader.read();
-            return create_token<token::Comma>();
+            return Token::create<token::Comma>();
         case ':':
             reader.read();
-            return create_token<token::Colon>();
+            return Token::create<token::Colon>();
         case '"':
             return parse_string_token();
         case 't':
