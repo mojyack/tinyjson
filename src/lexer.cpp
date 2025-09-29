@@ -167,8 +167,8 @@ auto tokenize(const std::string_view str) -> std::optional<std::vector<Token>> {
     auto lexer = Lexer(str);
     auto ret_o = lexer.tokenize();
     if(!ret_o) {
-        const auto [line, chara] = lexer.get_current_pos();
-        bail("lexer error at line {}, character {}", line, chara);
+        const auto [l, c] = lexer.get_current_pos();
+        bail("lexer error at line {}, character {}", l, c);
     } else {
         return std::move(ret_o.value());
     }
