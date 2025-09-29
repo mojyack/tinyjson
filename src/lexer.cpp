@@ -3,62 +3,14 @@
 
 #include "lexer.hpp"
 #include "macros/unwrap.hpp"
+#include "string-reader/string-reader.hpp"
 #include "util/charconv.hpp"
 
 namespace json {
 namespace {
-template <class T, class... Args>
-static auto contains(const T value, const T key, const Args... args) -> bool {
-    if(value == key) {
-        return true;
-    }
-    if constexpr(sizeof...(Args) > 0) {
-        return contains(value, args...);
-    }
-    return false;
-};
-
-struct StringReader {
-    size_t           cursor;
-    std::string_view str;
-
-    auto peek() const -> std::optional<char> {
-        ensure(cursor < str.size());
-        return str[cursor];
-    }
-
-    auto read() -> std::optional<char> {
-        unwrap(c, peek());
-        cursor += 1;
-        return c;
-    }
-
-    auto read(const int len) -> std::optional<std::string_view> {
-        ensure(cursor + len < str.size());
-        const auto r = str.substr(cursor, len);
-        cursor += len;
-        return r;
-    }
-
-    auto is_eof() const -> bool {
-        return cursor >= str.size();
-    }
-
-    template <class... Args>
-    auto read_until(const Args... args) -> std::optional<std::string_view> {
-        auto begin = cursor;
-    loop:
-        unwrap(c, read());
-        if(contains(c, args...)) {
-            cursor -= 1;
-            return str.substr(begin, cursor - begin);
-        }
-        goto loop;
-    }
-};
-
-class Lexer {
+struct Lexer {
     StringReader reader;
+    bool         allow_comments = false;
 
     auto parse_string_token() -> std::optional<Token> {
         ensure(reader.read()); // skip '"'
@@ -178,7 +130,6 @@ class Lexer {
         bail("unexpected character: '{}'", next);
     }
 
-  public:
     auto tokenize() -> std::optional<std::vector<Token>> {
         auto tokens = std::vector<Token>();
         while(!reader.is_eof()) {
