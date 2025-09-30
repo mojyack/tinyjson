@@ -6,10 +6,10 @@
 
 namespace json {
 namespace {
-class Parser {
-  private:
-    size_t             cursor;
+struct Parser {
     std::vector<Token> tokens;
+    size_t             cursor                = 0;
+    bool               allow_trailing_commas = false;
 
     template <class T>
     auto create_value() -> Value {
@@ -86,7 +86,12 @@ class Parser {
         case Token::index_of<token::RightBrace>:
             return create_value<Object>(std::move(children));
         case Token::index_of<token::Comma>:
-            goto loop;
+            if(allow_trailing_commas && peek_type<token::RightBrace>()) {
+                read();
+                return create_value<Object>(std::move(children));
+            } else {
+                goto loop;
+            }
         default:
             return std::nullopt;
         }
@@ -108,13 +113,17 @@ class Parser {
         case Token::index_of<token::RightBracket>:
             return create_value<Array>(std::move(array));
         case Token::index_of<token::Comma>:
-            goto loop;
+            if(allow_trailing_commas && peek_type<token::RightBracket>()) {
+                read();
+                return create_value<Array>(std::move(array));
+            } else {
+                goto loop;
+            }
         default:
             return std::nullopt;
         }
     }
 
-  public:
     auto parse() -> std::optional<Object> {
         unwrap_mut(value, parse_object());
         return std::move(value.as<Object>());
@@ -123,14 +132,15 @@ class Parser {
     auto get_error() -> std::string {
         return std::format("parser error at token {} of {}", cursor, tokens.size());
     }
-
-    Parser(std::vector<Token> tokens) : cursor(0), tokens(std::move(tokens)) {}
 };
 } // namespace
 
-auto parse(std::vector<Token> tokens) -> std::optional<Object> {
-    auto parser = Parser(std::move(tokens));
-    auto ret_o  = parser.parse();
+auto parse(std::vector<Token> tokens, bool allow_trailing_commas) -> std::optional<Object> {
+    auto parser = Parser{
+        .tokens                = std::move(tokens),
+        .allow_trailing_commas = allow_trailing_commas,
+    };
+    auto ret_o = parser.parse();
     if(!ret_o) {
         bail("{}", parser.get_error());
     } else {
@@ -140,7 +150,7 @@ auto parse(std::vector<Token> tokens) -> std::optional<Object> {
 
 auto parse(const std::string_view str, ParseOpts opts) -> std::optional<Object> {
     unwrap_mut(token, tokenize(str, opts.allow_comments));
-    unwrap_mut(object, parse(std::move(token)));
+    unwrap_mut(object, parse(std::move(token), opts.allow_trailing_commas));
     return std::move(object);
 }
 } // namespace json

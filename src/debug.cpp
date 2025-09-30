@@ -248,6 +248,22 @@ const auto comment_test = TestCase{
     })",
 };
 
+// trailing comma test
+const auto trailing_comma_test = TestCase{
+    .object = make_object(
+        "a", Number(1),
+        "b", Number(2),
+        "c", Number(3),
+        "array", make_array(Number(1), Number(2), Number(3))),
+    .string = R"(
+    {
+        "a": 1,
+        "b": 2,
+        "c": 3,
+        "array": [1,2,3,],
+    })",
+};
+
 auto test() -> bool {
     const auto tests = std::array{
         &lexer_test,
@@ -256,6 +272,7 @@ auto test() -> bool {
         &nest_test,
         &string_test,
         &comment_test,
+        &trailing_comma_test,
     };
 
     for(const auto test : tests) {

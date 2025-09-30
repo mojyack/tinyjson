@@ -101,7 +101,8 @@ auto make_object(const std::string_view key, Arg&& arg, Args&&... args) -> Objec
 
 // parser.cpp
 struct ParseOpts {
-    bool allow_comments = true;
+    bool allow_comments        = true;
+    bool allow_trailing_commas = true;
 };
 auto parse(std::string_view str, ParseOpts opts = {}) -> std::optional<Object>;
 
