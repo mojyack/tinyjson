@@ -1,6 +1,7 @@
 #include <string_view>
 #include <vector>
 
+#include "escape.hpp"
 #include "lexer.hpp"
 #include "macros/unwrap.hpp"
 #include "string-reader/string-reader.hpp"
@@ -33,7 +34,8 @@ struct Lexer {
             unwrap(c, reader.read());
             if(c == '\\') {
                 unwrap(d, reader.read());
-                str.push_back(d);
+                unwrap(e, unescape_char(d));
+                str.push_back(e);
                 continue;
             }
             if(c == '"') {

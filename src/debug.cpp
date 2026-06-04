@@ -216,13 +216,11 @@ const auto nest_test = TestCase{
 const auto string_test = TestCase{
     .object = make_object(
         "str1", String("string"),
-        "str2", String(R"("string")"),
-        "str3", String(R"(\string\)")),
+        "str2", String("\" \\ \b \f \n \r \t")),
     .string = R"(
     {
         "str1": "string",
-        "str2": "\"string\"",
-        "str3": "\\string\\"
+        "str2": "\" \\ \b \f \n \r \t",
     })",
 };
 
@@ -277,7 +275,7 @@ auto test() -> bool {
 
     for(const auto test : tests) {
         unwrap(parsed1, parse(test->string));
-        ensure(parsed1 == test->object);
+        ensure(parsed1 == test->object, "testcase: {}", test->string);
         std::println("stage1 ok");
         const auto str = deparse(parsed1);
         std::println("{}", str);

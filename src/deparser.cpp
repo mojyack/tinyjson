@@ -1,5 +1,6 @@
 #include <format>
 
+#include "escape.hpp"
 #include "json.hpp"
 
 namespace json {
@@ -14,16 +15,11 @@ auto deparse_value(std::string& str, const Value& value) -> void {
     case Value::index_of<String>:
         str += "\"";
         for(const auto c : value.as<String>().value) {
-            switch(c) {
-            case '"':
-                str += "\\\"";
-                break;
-            case '\\':
-                str += "\\\\";
-                break;
-            default:
+            if(const auto e = escape_char(c)) {
+                str += "\\";
+                str += *e;
+            } else {
                 str += c;
-                break;
             }
         }
         str += "\"";
