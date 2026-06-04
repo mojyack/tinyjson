@@ -1,11 +1,11 @@
 tinyjson_files = files(
-  'escape.cpp',
-  'json.cpp',
-  'lexer.cpp',
-  'parser.cpp',
-  'deparser.cpp',
+    'deparser.cpp',
+    'escape.cpp',
+    'json.cpp',
+    'lexer.cpp',
+    'parser.cpp',
 )
 
 tinyjson_debug_files = files(
-  'debug.cpp',
+    'debug.cpp',
 )
