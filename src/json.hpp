@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <type_traits>
 #include <vector>
 
 #include "util/variant.hpp"
@@ -37,18 +38,30 @@ struct Object {
     struct KeyValue;
     std::vector<KeyValue> children;
 
-    template <class T>
-    auto find(std::string_view key) -> T* {
-        const auto p = find(key);
-        if(!p) {
+    template <class T, class... Keys>
+        requires(std::is_convertible_v<Keys, std::string_view> && ...)
+    auto find(Keys&&... keys) -> T* {
+        const auto arr = std::array<std::string_view, sizeof...(Keys)>{std::forward<Keys>(keys)...};
+
+        auto obj = this;
+        for(auto i = arr.begin(); i < arr.end() - 1; i += 1) {
+            obj = obj->find<Object>(*i);
+            if(!obj) {
+                return nullptr;
+            }
+        }
+
+        auto node = obj->find(arr.back());
+        if(!node) {
             return nullptr;
         }
-        return p->get<T>();
+        return node->template get<T>();
     }
 
-    template <class T>
-    auto find(std::string_view key) const -> const T* {
-        return const_cast<Object*>(this)->find<T>(key);
+    template <class T, class... Keys>
+        requires(std::is_convertible_v<Keys, std::string_view> && ...)
+    auto find(Keys&&... keys) const -> const T* {
+        return const_cast<Object*>(this)->find<T, Keys...>(std::forward<Keys>(keys)...);
     }
 
     auto find(std::string_view key) -> Value*;

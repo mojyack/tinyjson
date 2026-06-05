@@ -285,11 +285,28 @@ auto test() -> bool {
     }
     return true;
 }
+
+auto find_test() -> bool {
+    const auto str = R"({
+        "obj1": {
+            "obj2": {
+                "obj3": {
+                    "num": 1
+                }
+            }
+        }
+    })";
+    unwrap(obj, parse(str));
+    unwrap(num, obj.find<Number>("obj1", "obj2", "obj3", "num"));
+    ensure(num.value == 1);
+    ensure(!obj.find<Number>("obj1", "obj3"));
+    return true;
+}
 } // namespace
 } // namespace json
 
 auto main() -> int {
-    if(json::test()) {
+    if(json::test() && json::find_test()) {
         std::println("all pass");
         return 0;
     } else {
