@@ -1,3 +1,3 @@
-cutil https://github.com/mojyack/cutil.git d3c64048ac2635b231d6c733a5a15dae4e28b22d
+cutil https://github.com/mojyack/cutil.git f614447a9f37e3b0cfb50017ceb3ab7f91693ffe
 cutil-macros https://github.com/mojyack/cutil-macros.git e3d95d06be45548f4bd5a195a6c9a54a7b24f072
 string-reader https://github.com/mojyack/string-reader.git 13e3180e183d1d98f8112314463e6ae60577fccf
